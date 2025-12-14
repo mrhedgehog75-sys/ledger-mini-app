@@ -1,36 +1,112 @@
+/* ===== ОСНОВА ===== */
 body {
-  background: #ece9d8;
+  background: transparent;
   font-family: Tahoma, Arial, sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  overflow-y: auto;
 }
 
+/* ===== XP ОКНО ===== */
 #app {
-  background: #f5f5f5;
-  border: 2px solid #7f9db9;
-  padding: 20px;
-  max-width: 400px;
-  margin: auto;
+  background: #ece9d8;
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px #ffffff,
+    inset -1px -1px #404040;
+  margin: 12px;
+  padding: 12px;
+  max-width: 420px;
+  padding-bottom: 120px;
 }
 
+/* ===== КНОПКИ ===== */
 button {
   background: #e1e1e1;
-  border: 2px outset #fff;
-  padding: 10px;
+  border: 2px outset #ffffff;
+  padding: 8px;
   width: 100%;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
 }
 
 button:active {
-  border: 2px inset #fff;
+  border: 2px inset #ffffff;
 }
 
-#log {
-  margin-top: 15px;
+/* ===== SUMMARY ===== */
+.summary {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border: 2px solid #808080;
+  font-size: 13px;
+}
+
+.summary div {
+  margin-bottom: 4px;
+}
+
+/* ===== ЛИМИТ ===== */
+.limit-box {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border: 2px solid #808080;
+}
+
+.limit-box input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px;
+}
+
+/* ===== КАЛЕНДАРЬ ===== */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 6px 8px;
+  background: #ece9d8;
+  border: 2px solid #808080;
   font-size: 14px;
 }
-/* Модальное окно */
+
+.calendar-header button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+#month-title {
+  font-weight: bold;
+}
+
+.calendar {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day {
+  text-align: center;
+  padding: 6px 0;
+  border: 1px solid #808080;
+  font-size: 12px;
+  background: #ffffff;
+}
+
+.day.ok {
+  background: #c6efce;
+}
+
+.day.bad {
+  background: #f4c7c3;
+}
+
+/* ===== МОДАЛКА ===== */
 .modal {
   position: fixed;
   inset: 0;
@@ -47,11 +123,10 @@ button:active {
 
 .modal-box {
   background: #ffffff;
-  padding: 16px;
+  padding: 14px;
   border: 2px solid #808080;
   width: 90%;
   max-width: 320px;
-  box-sizing: border-box;
 }
 
 .modal-box h2 {
@@ -66,66 +141,10 @@ button:active {
   font-size: 14px;
 }
 
-.modal-box button {
-  width: 100%;
-}
-.summary {
-  margin-top: 12px;
-  padding: 10px;
-  background: #ece9d8;
+/* ===== ГРАФИКИ ===== */
+canvas {
+  display: block;
+  margin: 10px auto;
+  background: #ffffff;
   border: 2px solid #808080;
-  font-size: 14px;
-}
-
-.summary div {
-  margin-bottom: 4px;
-}
-.limit-box {
-  margin-top: 12px;
-  padding: 10px;
-  background: #f0f0f0;
-  border: 2px solid #808080;
-}
-
-.calendar {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-}
-
-.day {
-  text-align: center;
-  padding: 6px 0;
-  border: 1px solid #808080;
-  font-size: 12px;
-}
-
-.day.ok {
-  background: #c6efce;
-}
-
-.day.bad {
-  background: #f4c7c3;
-}.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  margin-top: 10px;
-  background: #ece9d8;
-  border: 2px solid #808080;
-  font-size: 14px;
-}
-
-.calendar-header button {
-  width: 28px;
-  height: 28px;
-}
-body {
-  overflow-y: auto !important;
-}
-
-#app {
-  padding-bottom: 120px;
 }
