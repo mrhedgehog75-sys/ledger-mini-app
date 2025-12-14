@@ -107,4 +107,18 @@ button:active {
 
 .day.bad {
   background: #f4c7c3;
+}.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin-top: 10px;
+  background: #ece9d8;
+  border: 2px solid #808080;
+  font-size: 14px;
+}
+
+.calendar-header button {
+  width: 28px;
+  height: 28px;
 }

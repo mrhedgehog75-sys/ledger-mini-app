@@ -45,7 +45,6 @@ saveBtn.addEventListener("click", () => {
   expenses.push(expense);
   localStorage.setItem("expenses", JSON.stringify(expenses));
   updateSummary();
-  renderCalendar();
 
 
   modal.classList.add("hidden");
@@ -95,13 +94,17 @@ limitInput.addEventListener("change", () => {
 function renderCalendar() {
   calendar.innerHTML = "";
 
+  // === ВАЖНО: используем currentDate ===
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // заголовок месяца
+  monthTitle.innerText =
+    monthNames[month] + " " + year;
+
   const expenses =
     JSON.parse(localStorage.getItem("expenses") || "[]");
   const limit = Number(limitInput.value);
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
 
   const daysInMonth =
     new Date(year, month + 1, 0).getDate();
@@ -134,6 +137,27 @@ function renderCalendar() {
   }
 }
 
+
 // первый рендер
-updateSummary();
+let currentDate = new Date();
+
+const monthTitle = document.getElementById("month-title");
+const prevBtn = document.getElementById("prev-month");
+const nextBtn = document.getElementById("next-month");
+
+const monthNames = [
+  "Январь","Февраль","Март","Апрель","Май","Июнь",
+  "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
+];
+
+prevBtn.onclick = () => {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  renderCalendar();
+};
+
+nextBtn.onclick = () => {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+};
+
 renderCalendar();
