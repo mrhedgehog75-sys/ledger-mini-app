@@ -18,6 +18,27 @@
     <div id="log"></div>
   </div>
 
+  <!-- Модальное окно добавления расхода -->
+<div id="expense-modal" class="modal hidden">
+  <div class="modal-box">
+    <h2>Новый расход</h2>
+
+    <input
+      type="number"
+      id="amount-input"
+      placeholder="Сумма"
+    />
+
+    <select id="type-input">
+      <option value="daily">Повседневное</option>
+      <option value="main">Основное</option>
+      <option value="big">Крупное</option>
+    </select>
+
+    <button id="save-expense">Сохранить</button>
+  </div>
+</div>
+
   <script src="app.js"></script>
 </body>
 </html>

@@ -30,3 +30,42 @@ button:active {
   margin-top: 15px;
   font-size: 14px;
 }
+/* Модальное окно */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: #ffffff;
+  padding: 16px;
+  border: 2px solid #808080;
+  width: 90%;
+  max-width: 320px;
+  box-sizing: border-box;
+}
+
+.modal-box h2 {
+  margin-top: 0;
+}
+
+.modal-box input,
+.modal-box select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.modal-box button {
+  width: 100%;
+}
