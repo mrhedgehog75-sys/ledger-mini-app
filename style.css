@@ -148,3 +148,28 @@ canvas {
   background: #ffffff;
   border: 2px solid #808080;
 }
+.tab {
+  display: none;
+}
+
+.tab.active {
+  display: block;
+}
+
+.bottom-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ece9d8;
+  border-top: 2px solid #808080;
+  display: flex;
+}
+
+.bottom-tabs button {
+  flex: 1;
+  border: none;
+  border-right: 1px solid #808080;
+  background: #e1e1e1;
+  font-size: 16px;
+}

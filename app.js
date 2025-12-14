@@ -255,3 +255,24 @@ window.addEventListener("load", () => {
 
   updateCharts();
 });
+
+/* === Вкладки === */
+document.querySelectorAll(".bottom-tabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const name = btn.dataset.tab;
+
+    document.querySelectorAll(".tab").forEach(t =>
+      t.classList.remove("active")
+    );
+
+    document.getElementById("tab-" + name)
+      .classList.add("active");
+
+    // 👇 важно для графиков
+    if (name === "charts") {
+      setTimeout(() => {
+        updateCharts();
+      }, 50);
+    }
+  });
+});

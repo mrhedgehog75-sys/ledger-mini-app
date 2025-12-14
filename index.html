@@ -1,58 +1,110 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Finance Mini App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8" />
+  <title>Ledger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-  <div id="app" class="xp-window">
-    <div id="summary" class="summary">
-  <div>Повседневные: <span id="sum-daily">0</span></div>
-  <div>Основные: <span id="sum-main">0</span></div>
-  <div>Крупные: <span id="sum-big">0</span></div>
-  <hr />
-  <div><strong>Всего: <span id="sum-total">0</span></strong></div>
-</div>
+<div id="app">
 
-<div class="limit-box">
-  <label>
-    Дневной лимит:
-    <input type="number" id="daily-limit" placeholder="Например 1500" />
-  </label>
-  <button id="save-limit">Сохранить лимит</button>
-</div>
+  <!-- ================= ВКЛАДКИ ================= -->
+  <div id="tabs-content">
 
-<div class="calendar-header">
-  <button id="prev-month">◀</button>
-  <span id="month-title"></span>
-  <button id="next-month">▶</button>
-</div>
+    <!-- ===== ТАБЛИЦЫ ===== -->
+    <div class="tab active" id="tab-tables">
 
+      <h2>📋 Расходы</h2>
 
-<div id="calendar" class="calendar"></div>
+      <div class="summary">
+        <div>Повседневные: <span id="sum-daily">0</span></div>
+        <div>Основные: <span id="sum-main">0</span></div>
+        <div>Крупные: <span id="sum-big">0</span></div>
+        <hr />
+        <div><strong>Всего: <span id="sum-total">0</span></strong></div>
+      </div>
 
-    <h1>💾 Finance XP</h1>
-  
-    
+      <p style="margin-top:10px;">
+        Добавляй расходы быстро — без категорий и лишних кликов.
+      </p>
 
-    <div id="log"></div>
+    </div>
+
+    <!-- ===== КАЛЕНДАРЬ ===== -->
+    <div class="tab" id="tab-calendar">
+
+      <h2>📅 Календарь</h2>
+
+      <div class="limit-box">
+        <label>
+          Дневной лимит:
+          <input type="number" id="daily-limit" placeholder="Например 500" />
+        </label>
+        <button id="save-limit" style="margin-top:6px;">
+          Сохранить лимит
+        </button>
+      </div>
+
+      <div class="calendar-header">
+        <button id="prev-month">◀</button>
+        <div id="month-title"></div>
+        <button id="next-month">▶</button>
+      </div>
+
+      <div id="calendar" class="calendar"></div>
+
+    </div>
+
+    <!-- ===== ГРАФИКИ ===== -->
+    <div class="tab" id="tab-charts">
+
+      <h2>📊 Графики</h2>
+
+      <p>Распределение расходов</p>
+      <canvas id="barChart" width="300" height="160"></canvas>
+
+      <p>Динамика месяца</p>
+      <canvas id="lineChart" width="300" height="160"></canvas>
+
+    </div>
+
+    <!-- ===== ЦЕЛИ ===== -->
+    <div class="tab" id="tab-goals">
+
+      <h2>🎯 Цели</h2>
+
+      <p>
+        Здесь появятся:
+      </p>
+      <ul>
+        <li>накопления</li>
+        <li>долги</li>
+        <li>прогресс</li>
+      </ul>
+
+      <p style="opacity:0.7;">
+        (сделаем следующим шагом)
+      </p>
+
+    </div>
+
   </div>
 
-<hr />
+</div>
 
-<h3>📊 Расходы</h3>
+<!-- ================= НИЖНИЕ ВКЛАДКИ ================= -->
+<div class="bottom-tabs">
+  <button data-tab="tables">📋</button>
+  <button data-tab="calendar">📅</button>
+  <button data-tab="charts">📊</button>
+  <button data-tab="goals">🎯</button>
+</div>
 
-<canvas id="barChart" width="300" height="160"></canvas>
-
-<h3>📈 Динамика месяца</h3>
-
-<canvas id="lineChart" width="300" height="160"></canvas>
-
-  <!-- Модальное окно добавления расхода -->
+<!-- ================= МОДАЛКА ================= -->
 <div id="expense-modal" class="modal hidden">
   <div class="modal-box">
     <h2>Новый расход</h2>
@@ -73,6 +125,6 @@
   </div>
 </div>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
