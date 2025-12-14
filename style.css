@@ -122,3 +122,10 @@ button:active {
   width: 28px;
   height: 28px;
 }
+body {
+  overflow-y: auto !important;
+}
+
+#app {
+  padding-bottom: 120px;
+}
