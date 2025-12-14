@@ -77,6 +77,7 @@ function updateSummary() {
 
 // обновляем при запуске
 updateSummary();
+renderCalendar();
 // === ШАГ 12: лимит и календарь ===
 const limitInput = document.getElementById("daily-limit");
 const calendar = document.getElementById("calendar");
@@ -124,7 +125,7 @@ function renderCalendar() {
     div.className = "day";
     div.innerText = day;
 
-    if (limit) {
+    if (!isNaN(limit) && limit > 0) {
       if (sum <= limit) div.classList.add("ok");
       else div.classList.add("bad");
     }
@@ -134,4 +135,5 @@ function renderCalendar() {
 }
 
 // первый рендер
+updateSummary();
 renderCalendar();
