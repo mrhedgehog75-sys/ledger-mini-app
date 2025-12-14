@@ -11,9 +11,7 @@ if (tg) {
   tg.MainButton.setText("Добавить расход");
   tg.MainButton.show();
 
-  tg.MainButton.onClick(() => {
-    tg.showAlert("Расход добавлен 💸");
-  });
+
 }
 // === ШАГ 10: быстрый ввод расхода ===
 const modal = document.getElementById("expense-modal");
@@ -46,9 +44,34 @@ saveBtn.addEventListener("click", () => {
 
   expenses.push(expense);
   localStorage.setItem("expenses", JSON.stringify(expenses));
+  updateSummary();
 
   modal.classList.add("hidden");
   amountInput.value = "";
 
   if (tg) tg.showAlert("Расход сохранён 💾");
 });
+// === ШАГ 11: подсчёт сумм ===
+function updateSummary() {
+  const expenses =
+    JSON.parse(localStorage.getItem("expenses") || "[]");
+
+  let daily = 0;
+  let main = 0;
+  let big = 0;
+
+  expenses.forEach(e => {
+    if (e.type === "daily") daily += e.amount;
+    if (e.type === "main") main += e.amount;
+    if (e.type === "big") big += e.amount;
+  });
+
+  document.getElementById("sum-daily").innerText = daily;
+  document.getElementById("sum-main").innerText = main;
+  document.getElementById("sum-big").innerText = big;
+  document.getElementById("sum-total").innerText =
+    daily + main + big;
+}
+
+// обновляем при запуске
+updateSummary();
