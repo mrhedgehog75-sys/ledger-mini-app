@@ -80,3 +80,31 @@ button:active {
 .summary div {
   margin-bottom: 4px;
 }
+.limit-box {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f0f0f0;
+  border: 2px solid #808080;
+}
+
+.calendar {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day {
+  text-align: center;
+  padding: 6px 0;
+  border: 1px solid #808080;
+  font-size: 12px;
+}
+
+.day.ok {
+  background: #c6efce;
+}
+
+.day.bad {
+  background: #f4c7c3;
+}

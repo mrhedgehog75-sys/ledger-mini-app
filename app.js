@@ -45,6 +45,8 @@ saveBtn.addEventListener("click", () => {
   expenses.push(expense);
   localStorage.setItem("expenses", JSON.stringify(expenses));
   updateSummary();
+  renderCalendar();
+
 
   modal.classList.add("hidden");
   amountInput.value = "";
@@ -75,3 +77,61 @@ function updateSummary() {
 
 // обновляем при запуске
 updateSummary();
+// === ШАГ 12: лимит и календарь ===
+const limitInput = document.getElementById("daily-limit");
+const calendar = document.getElementById("calendar");
+
+// загрузка лимита
+limitInput.value =
+  localStorage.getItem("dailyLimit") || "";
+
+// сохранение лимита
+limitInput.addEventListener("change", () => {
+  localStorage.setItem("dailyLimit", limitInput.value);
+  renderCalendar();
+});
+
+function renderCalendar() {
+  calendar.innerHTML = "";
+
+  const expenses =
+    JSON.parse(localStorage.getItem("expenses") || "[]");
+  const limit = Number(limitInput.value);
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  const daysInMonth =
+    new Date(year, month + 1, 0).getDate();
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayExpenses = expenses.filter(e => {
+      const d = new Date(e.date);
+      return (
+        d.getFullYear() === year &&
+        d.getMonth() === month &&
+        d.getDate() === day
+      );
+    });
+
+    const sum = dayExpenses.reduce(
+      (s, e) => s + e.amount,
+      0
+    );
+
+    const div = document.createElement("div");
+    div.className = "day";
+    div.innerText = day;
+
+    if (limit) {
+      if (sum <= limit) div.classList.add("ok");
+      else div.classList.add("bad");
+    }
+
+    calendar.appendChild(div);
+  }
+}
+
+// первый рендер
+renderCalendar();
