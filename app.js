@@ -76,11 +76,9 @@ function updateSummary() {
 
 // обновляем при запуске
 updateSummary();
-renderCalendar();
 // === ШАГ 12: лимит и календарь ===
 const limitInput = document.getElementById("daily-limit");
 const calendar = document.getElementById("calendar");
-
 // загрузка лимита
 limitInput.value =
   localStorage.getItem("dailyLimit") || "";
