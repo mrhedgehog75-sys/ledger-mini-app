@@ -173,3 +173,13 @@ canvas {
   background: #e1e1e1;
   font-size: 16px;
 }
+.add-btn {
+  font-size: 22px;
+  font-weight: bold;
+  background: #c6defa;
+  border: 2px outset #ffffff;
+}
+
+.add-btn:active {
+  border: 2px inset #ffffff;
+}

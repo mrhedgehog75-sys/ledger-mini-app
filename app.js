@@ -9,8 +9,6 @@ if (tg) {
     tg.themeParams.bg_color || "#d4d0c8";
   document.body.style.overflow = "hidden";
 
-  tg.MainButton.setText("Добавить расход");
-  tg.MainButton.show();
 }
 
 /* === ШАГ 10: быстрый ввод расхода === */
@@ -20,9 +18,7 @@ const typeInput = document.getElementById("type-input");
 const saveBtn = document.getElementById("save-expense");
 
 if (tg) {
-  tg.MainButton.onClick(() => {
-    modal.classList.remove("hidden");
-  });
+  
 }
 
 saveBtn.addEventListener("click", () => {
@@ -275,4 +271,10 @@ document.querySelectorAll(".bottom-tabs button").forEach(btn => {
       }, 50);
     }
   });
+});
+/* === кнопка + === */
+const addBtn = document.getElementById("add-btn");
+
+addBtn.addEventListener("click", () => {
+  modal.classList.remove("hidden");
 });
