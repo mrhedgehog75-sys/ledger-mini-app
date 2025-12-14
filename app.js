@@ -161,97 +161,97 @@ function renderCalendar() {
 updateSummary();
 renderCalendar();
 
-/* === ШАГ 14: XP-графики === */
+/* === ШАГ 14: XP-графики (безопасный запуск) === */
+window.addEventListener("load", () => {
 
-const barCanvas = document.getElementById("barChart");
-const barCtx = barCanvas.getContext("2d");
+  const barCanvas = document.getElementById("barChart");
+  const lineCanvas = document.getElementById("lineChart");
 
-const lineCanvas = document.getElementById("lineChart");
-const lineCtx = lineCanvas.getContext("2d");
+  if (!barCanvas || !lineCanvas) {
+    console.warn("Canvas не найден — графики не запущены");
+    return;
+  }
 
-/* === Столбцы === */
-function drawBarChart() {
-  barCtx.clearRect(0, 0, 300, 160);
+  const barCtx = barCanvas.getContext("2d");
+  const lineCtx = lineCanvas.getContext("2d");
 
-  const expenses =
-    JSON.parse(localStorage.getItem("expenses") || "[]");
+  function drawBarChart() {
+    barCtx.clearRect(0, 0, 300, 160);
 
-  let daily = 0, main = 0, big = 0;
+    const expenses =
+      JSON.parse(localStorage.getItem("expenses") || "[]");
 
-  expenses.forEach(e => {
-    if (e.type === "daily") daily += e.amount;
-    if (e.type === "main") main += e.amount;
-    if (e.type === "big") big += e.amount;
-  });
+    let daily = 0, main = 0, big = 0;
 
-  const values = [daily, main, big];
-  const colors = ["#4caf50", "#2196f3", "#b71c1c"];
-  const labels = ["Daily", "Main", "Big"];
+    expenses.forEach(e => {
+      if (e.type === "daily") daily += e.amount;
+      if (e.type === "main") main += e.amount;
+      if (e.type === "big") big += e.amount;
+    });
 
-  const max = Math.max(...values, 1);
+    const values = [daily, main, big];
+    const colors = ["#4caf50", "#2196f3", "#b71c1c"];
+    const labels = ["Daily", "Main", "Big"];
 
-  values.forEach((v, i) => {
-    const h = (v / max) * 100;
+    const max = Math.max(...values, 1);
 
-    barCtx.fillStyle = colors[i];
-    barCtx.fillRect(40 + i * 80, 130 - h, 40, h);
+    values.forEach((v, i) => {
+      const h = (v / max) * 100;
 
-    barCtx.fillStyle = "#000";
-    barCtx.fillText(labels[i], 40 + i * 80, 145);
-  });
-}
+      barCtx.fillStyle = colors[i];
+      barCtx.fillRect(40 + i * 80, 130 - h, 40, h);
 
-/* === Линия === */
-function drawLineChart() {
-  lineCtx.clearRect(0, 0, 300, 160);
+      barCtx.fillStyle = "#000";
+      barCtx.fillText(labels[i], 40 + i * 80, 145);
+    });
+  }
 
-  const expenses =
-    JSON.parse(localStorage.getItem("expenses") || "[]");
+  function drawLineChart() {
+    lineCtx.clearRect(0, 0, 300, 160);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const days =
-    new Date(year, month + 1, 0).getDate();
+    const expenses =
+      JSON.parse(localStorage.getItem("expenses") || "[]");
 
-  const sums = Array(days).fill(0);
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const days =
+      new Date(year, month + 1, 0).getDate();
 
-  expenses.forEach(e => {
-    const d = new Date(e.date);
-    if (
-      d.getFullYear() === year &&
-      d.getMonth() === month
-    ) {
-      sums[d.getDate() - 1] += e.amount;
-    }
-  });
+    const sums = Array(days).fill(0);
 
-  const max = Math.max(...sums, 1);
+    expenses.forEach(e => {
+      const d = new Date(e.date);
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        sums[d.getDate() - 1] += e.amount;
+      }
+    });
 
-  lineCtx.strokeStyle = "#0066cc";
-  lineCtx.beginPath();
+    const max = Math.max(...sums, 1);
 
-  sums.forEach((v, i) => {
-    const x = 10 + (i / days) * 280;
-    const y = 140 - (v / max) * 100;
+    lineCtx.strokeStyle = "#0066cc";
+    lineCtx.beginPath();
 
-    if (i === 0) lineCtx.moveTo(x, y);
-    else lineCtx.lineTo(x, y);
-  });
+    sums.forEach((v, i) => {
+      const x = 10 + (i / days) * 280;
+      const y = 140 - (v / max) * 100;
 
-  lineCtx.stroke();
-}
+      if (i === 0) lineCtx.moveTo(x, y);
+      else lineCtx.lineTo(x, y);
+    });
 
-/* === автообновление === */
-function updateCharts() {
-  drawBarChart();
-  drawLineChart();
-}
+    lineCtx.stroke();
+  }
 
-/* === хуки === */
-const originalUpdateSummary = updateSummary;
-updateSummary = function () {
-  originalUpdateSummary();
+  function updateCharts() {
+    drawBarChart();
+    drawLineChart();
+  }
+
+  const oldUpdateSummary = updateSummary;
+  updateSummary = function () {
+    oldUpdateSummary();
+    updateCharts();
+  };
+
   updateCharts();
-};
-
-updateCharts();
+});
