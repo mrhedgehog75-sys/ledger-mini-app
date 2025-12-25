@@ -9,64 +9,82 @@ if (tg) {
     tg.themeParams.bg_color || "#d4d0c8";
   document.body.style.overflow = "hidden";
 
+  tg.MainButton.setText("Добавить");
+  tg.MainButton.show();
 }
 
-/* === ШАГ 10: быстрый ввод расхода === */
+/* === МОДАЛКА === */
 const modal = document.getElementById("expense-modal");
 const amountInput = document.getElementById("amount-input");
 const typeInput = document.getElementById("type-input");
+const flowInput = document.getElementById("flow-input");
 const saveBtn = document.getElementById("save-expense");
 
 if (tg) {
-  
+  tg.MainButton.onClick(() => {
+    modal.classList.remove("hidden");
+  });
 }
 
+/* === СОХРАНЕНИЕ ОПЕРАЦИИ === */
 saveBtn.addEventListener("click", () => {
   const amount = Number(amountInput.value);
   if (!amount) return;
 
-  const expense = {
+  const operation = {
     amount,
     type: typeInput.value,
+    flow: flowInput.value, // in | out
     date: new Date().toISOString()
   };
 
-  const expenses =
+  const data =
     JSON.parse(localStorage.getItem("expenses") || "[]");
 
-  expenses.push(expense);
-  localStorage.setItem("expenses", JSON.stringify(expenses));
+  data.push(operation);
+  localStorage.setItem("expenses", JSON.stringify(data));
+
+  amountInput.value = "";
+  modal.classList.add("hidden");
 
   updateSummary();
   renderCalendar();
 
-  modal.classList.add("hidden");
-  amountInput.value = "";
-
-  if (tg) tg.showAlert("Расход сохранён 💾");
+  if (tg) tg.showAlert("Сохранено 💾");
 });
 
-/* === ШАГ 11: суммы === */
+/* === СУММЫ + БАЛАНС === */
 function updateSummary() {
-  const expenses =
+  const data =
     JSON.parse(localStorage.getItem("expenses") || "[]");
 
-  let daily = 0, main = 0, big = 0;
+  let daily = 0;
+  let main = 0;
+  let big = 0;
+  let income = 0;
 
-  expenses.forEach(e => {
-    if (e.type === "daily") daily += e.amount;
-    if (e.type === "main") main += e.amount;
-    if (e.type === "big") big += e.amount;
+  data.forEach(e => {
+    if (e.flow === "in") {
+      income += e.amount;
+    } else {
+      if (e.type === "daily") daily += e.amount;
+      if (e.type === "main") main += e.amount;
+      if (e.type === "big") big += e.amount;
+    }
   });
+
+  const totalOut = daily + main + big;
+  const balance = income - totalOut;
 
   document.getElementById("sum-daily").innerText = daily;
   document.getElementById("sum-main").innerText = main;
   document.getElementById("sum-big").innerText = big;
-  document.getElementById("sum-total").innerText =
-    daily + main + big;
+  document.getElementById("sum-income").innerText = income;
+  document.getElementById("sum-total").innerText = totalOut;
+  document.getElementById("sum-balance").innerText = balance;
 }
 
-/* === ШАГ 12–13: лимит + календарь === */
+/* === ЛИМИТ + КАЛЕНДАРЬ === */
 const limitInput = document.getElementById("daily-limit");
 const saveLimitBtn = document.getElementById("save-limit");
 const calendar = document.getElementById("calendar");
@@ -74,13 +92,13 @@ const calendar = document.getElementById("calendar");
 limitInput.value =
   localStorage.getItem("dailyLimit") || "";
 
-saveLimitBtn.addEventListener("click", () => {
+saveLimitBtn?.addEventListener("click", () => {
   localStorage.setItem("dailyLimit", limitInput.value);
   renderCalendar();
-  if (tg) tg.showAlert("Дневной лимит сохранён 💾");
+  if (tg) tg.showAlert("Лимит сохранён");
 });
 
-/* === Месяцы === */
+/* === МЕСЯЦЫ === */
 let currentDate = new Date();
 
 const monthTitle = document.getElementById("month-title");
@@ -92,28 +110,31 @@ const monthNames = [
   "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
 ];
 
-prevBtn.onclick = () => {
+prevBtn?.addEventListener("click", () => {
   currentDate.setMonth(currentDate.getMonth() - 1);
   renderCalendar();
-};
+});
 
-nextBtn.onclick = () => {
+nextBtn?.addEventListener("click", () => {
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
-};
+});
 
-/* === Рендер календаря === */
+/* === РЕНДЕР КАЛЕНДАРЯ === */
 function renderCalendar() {
   calendar.innerHTML = "";
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  monthTitle.innerText =
-    monthNames[month] + " " + year;
+  if (monthTitle) {
+    monthTitle.innerText =
+      monthNames[month] + " " + year;
+  }
 
-  const expenses =
+  const data =
     JSON.parse(localStorage.getItem("expenses") || "[]");
+
   const limit = Number(limitInput.value);
 
   const daysInMonth =
@@ -126,9 +147,10 @@ function renderCalendar() {
     const dayDate = new Date(year, month, day);
     dayDate.setHours(0, 0, 0, 0);
 
-    const dayExpenses = expenses.filter(e => {
+    const dayExpenses = data.filter(e => {
       const d = new Date(e.date);
       return (
+        e.flow === "out" &&
         d.getFullYear() === year &&
         d.getMonth() === month &&
         d.getDate() === day
@@ -136,8 +158,7 @@ function renderCalendar() {
     });
 
     const sum = dayExpenses.reduce(
-      (s, e) => s + e.amount,
-      0
+      (s, e) => s + e.amount, 0
     );
 
     const div = document.createElement("div");
@@ -153,128 +174,111 @@ function renderCalendar() {
   }
 }
 
-/* === старт === */
+/* === СТАРТ === */
 updateSummary();
 renderCalendar();
 
-/* === ШАГ 14: XP-графики (безопасный запуск) === */
-window.addEventListener("load", () => {
+/* === ГРАФИКИ (XP STYLE) === */
 
-  const barCanvas = document.getElementById("barChart");
-  const lineCanvas = document.getElementById("lineChart");
+const barCanvas = document.getElementById("barChart");
+const lineCanvas = document.getElementById("lineChart");
 
-  if (!barCanvas || !lineCanvas) {
-    console.warn("Canvas не найден — графики не запущены");
-    return;
-  }
+const barCtx = barCanvas?.getContext("2d");
+const lineCtx = lineCanvas?.getContext("2d");
 
-  const barCtx = barCanvas.getContext("2d");
-  const lineCtx = lineCanvas.getContext("2d");
+/* === СТОЛБЦЫ: типы расходов === */
+function drawBarChart() {
+  if (!barCtx) return;
 
-  function drawBarChart() {
-    barCtx.clearRect(0, 0, 300, 160);
+  barCtx.clearRect(0, 0, 300, 160);
 
-    const expenses =
-      JSON.parse(localStorage.getItem("expenses") || "[]");
+  const data =
+    JSON.parse(localStorage.getItem("expenses") || "[]");
 
-    let daily = 0, main = 0, big = 0;
+  let daily = 0, main = 0, big = 0;
 
-    expenses.forEach(e => {
+  data.forEach(e => {
+    if (e.flow === "out") {
       if (e.type === "daily") daily += e.amount;
       if (e.type === "main") main += e.amount;
       if (e.type === "big") big += e.amount;
-    });
-
-    const values = [daily, main, big];
-    const colors = ["#4caf50", "#2196f3", "#b71c1c"];
-    const labels = ["Daily", "Main", "Big"];
-
-    const max = Math.max(...values, 1);
-
-    values.forEach((v, i) => {
-      const h = (v / max) * 100;
-
-      barCtx.fillStyle = colors[i];
-      barCtx.fillRect(40 + i * 80, 130 - h, 40, h);
-
-      barCtx.fillStyle = "#000";
-      barCtx.fillText(labels[i], 40 + i * 80, 145);
-    });
-  }
-
-  function drawLineChart() {
-    lineCtx.clearRect(0, 0, 300, 160);
-
-    const expenses =
-      JSON.parse(localStorage.getItem("expenses") || "[]");
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const days =
-      new Date(year, month + 1, 0).getDate();
-
-    const sums = Array(days).fill(0);
-
-    expenses.forEach(e => {
-      const d = new Date(e.date);
-      if (d.getFullYear() === year && d.getMonth() === month) {
-        sums[d.getDate() - 1] += e.amount;
-      }
-    });
-
-    const max = Math.max(...sums, 1);
-
-    lineCtx.strokeStyle = "#0066cc";
-    lineCtx.beginPath();
-
-    sums.forEach((v, i) => {
-      const x = 10 + (i / days) * 280;
-      const y = 140 - (v / max) * 100;
-
-      if (i === 0) lineCtx.moveTo(x, y);
-      else lineCtx.lineTo(x, y);
-    });
-
-    lineCtx.stroke();
-  }
-
-  function updateCharts() {
-    drawBarChart();
-    drawLineChart();
-  }
-
-  const oldUpdateSummary = updateSummary;
-  updateSummary = function () {
-    oldUpdateSummary();
-    updateCharts();
-  };
-
-  updateCharts();
-});
-
-/* === Вкладки === */
-document.querySelectorAll(".bottom-tabs button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const name = btn.dataset.tab;
-
-    document.querySelectorAll(".tab").forEach(t =>
-      t.classList.remove("active")
-    );
-
-    document.getElementById("tab-" + name)
-      .classList.add("active");
-
-    // 👇 важно для графиков
-    if (name === "charts") {
-      setTimeout(() => {
-        updateCharts();
-      }, 50);
     }
   });
-});
-/* === кнопка + === */
-const addBtn = document.getElementById("add-btn");
 
-addBtn.addEventListener("click", () => {
-  modal.classList.remove("hidden");
-});
+  const values = [daily, main, big];
+  const labels = ["Повседн.", "Основные", "Крупные"];
+  const colors = ["#6aa84f", "#6fa8dc", "#e06666"];
+  const max = Math.max(...values, 1);
+
+  values.forEach((v, i) => {
+    const h = (v / max) * 100;
+
+    barCtx.fillStyle = colors[i];
+    barCtx.fillRect(40 + i * 80, 130 - h, 40, h);
+
+    barCtx.fillStyle = "#000";
+    barCtx.font = "11px Tahoma";
+    barCtx.fillText(labels[i], 32 + i * 80, 145);
+  });
+}
+
+/* === ЛИНИЯ: траты по дням === */
+function drawLineChart() {
+  if (!lineCtx) return;
+
+  lineCtx.clearRect(0, 0, 300, 160);
+
+  const data =
+    JSON.parse(localStorage.getItem("expenses") || "[]");
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const days =
+    new Date(year, month + 1, 0).getDate();
+
+  const sums = Array(days).fill(0);
+
+  data.forEach(e => {
+    if (e.flow === "out") {
+      const d = new Date(e.date);
+      if (
+        d.getFullYear() === year &&
+        d.getMonth() === month
+      ) {
+        sums[d.getDate() - 1] += e.amount;
+      }
+    }
+  });
+
+  const max = Math.max(...sums, 1);
+
+  lineCtx.strokeStyle = "#3c78d8";
+  lineCtx.lineWidth = 2;
+  lineCtx.beginPath();
+
+  sums.forEach((v, i) => {
+    const x = 10 + (i / (days - 1)) * 280;
+    const y = 140 - (v / max) * 100;
+
+    if (i === 0) lineCtx.moveTo(x, y);
+    else lineCtx.lineTo(x, y);
+  });
+
+  lineCtx.stroke();
+}
+
+/* === ОБНОВЛЕНИЕ === */
+function updateCharts() {
+  drawBarChart();
+  drawLineChart();
+}
+
+/* === ПОДКЛЮЧАЕМ К ОБНОВЛЕНИЯМ === */
+const originalUpdateSummary = updateSummary;
+updateSummary = function () {
+  originalUpdateSummary();
+  updateCharts();
+};
+
+/* первый рендер */
+updateCharts();
