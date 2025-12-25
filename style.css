@@ -1,39 +1,44 @@
 /* ===== ОСНОВА ===== */
 
 body {
-  background: transparent;
-  font-family: Tahoma, Arial, sans-serif;
+  background: #111214; /* тёмный фон как в Telegram/iOS */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Tahoma, Arial,
+    sans-serif;
   margin: 0;
   padding: 0;
   overflow-y: auto;
 }
 
-/* ===== XP ОКНО ===== */
+/* ===== ОКНО ПРИЛОЖЕНИЯ ===== */
 
 #app {
-  background: #ece9d8;
-  border: 2px solid #808080;
+  background: #f5f3f0; /* мягкий тёплый серо-бежевый */
+  border: 1px solid #c7c7cc;
   box-shadow:
-    inset 1px 1px #ffffff,
-    inset -1px -1px #404040;
+    0 8px 20px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px #ffffff;
   margin: 12px;
   padding: 12px;
   max-width: 420px;
   padding-bottom: 70px; /* место под нижнюю панель */
+  border-radius: 10px;
 }
 
 /* ===== КНОПКИ (общие) ===== */
 
 button {
-  background: #e1e1e1;
-  border: 2px outset #ffffff;
+  background: #f2f2f7;
+  border: 1px solid #c7c7cc;
+  border-radius: 8px;
   padding: 6px 8px;
   font-size: 14px;
   cursor: pointer;
+  color: #111827;
 }
 
 button:active {
-  border: 2px inset #ffffff;
+  border-color: #8e8e93;
+  background: #e5e5ea;
 }
 
 /* ===== SUMMARY ===== */
@@ -41,9 +46,11 @@ button:active {
 .summary {
   margin-top: 10px;
   padding: 10px;
-  background: #f5f5f5;
-  border: 2px solid #808080;
+  background: #fafafa;
+  border: 1px solid #d1d1d6;
+  border-radius: 8px;
   font-size: 13px;
+  color: #111827;
 }
 
 .summary div {
@@ -55,15 +62,21 @@ button:active {
 .limit-box {
   margin-top: 10px;
   padding: 10px;
-  background: #f5f5f5;
-  border: 2px solid #808080;
+  background: #fafafa;
+  border: 1px solid #d1d1d6;
+  border-radius: 8px;
   font-size: 13px;
+  color: #111827;
 }
 
 .limit-box input {
   width: 100%;
   margin-top: 6px;
-  padding: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d1d6;
+  background: #ffffff;
+  box-sizing: border-box;
 }
 
 /* ===== КАЛЕНДАРЬ ===== */
@@ -74,19 +87,22 @@ button:active {
   align-items: center;
   margin-top: 12px;
   padding: 6px 8px;
-  background: #ece9d8;
-  border: 2px solid #808080;
+  background: #f2f2f7;
+  border: 1px solid #d1d1d6;
+  border-radius: 8px;
   font-size: 14px;
+  color: #111827;
 }
 
 .calendar-header button {
   width: 28px;
   height: 28px;
   padding: 0;
+  border-radius: 6px;
 }
 
 #month-title {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .calendar {
@@ -99,17 +115,21 @@ button:active {
 .day {
   text-align: center;
   padding: 6px 0;
-  border: 1px solid #808080;
+  border-radius: 6px;
+  border: 1px solid #e5e5ea;
   font-size: 12px;
   background: #ffffff;
+  color: #111827;
 }
 
 .day.ok {
-  background: #c6efce;
+  background: #e3f9e5;      /* мягкий зелёный */
+  border-color: #b7e4c7;
 }
 
 .day.bad {
-  background: #f4c7c3;
+  background: #ffe9e9;      /* мягкий красный */
+  border-color: #f5b5b5;
 }
 
 /* ===== МОДАЛКА ===== */
@@ -117,7 +137,7 @@ button:active {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,50 +149,50 @@ button:active {
 }
 
 .modal-box {
-  background: #ece9d8;
+  background: #f5f3f0;
   padding: 0 14px 14px;
-  border: 2px solid #808080;
+  border-radius: 12px;
+  border: 1px solid #c7c7cc;
   width: 90%;
-  max-width: 320px;
-  box-shadow:
-    inset 1px 1px #ffffff,
-    inset -1px -1px #404040;
+  max-width: 360px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
 }
 
-.modal-box h2 {
-  margin-top: 0;
+.modal-title-bar {
+  background: linear-gradient(to right, #3478f6, #5e9bff);
+  color: #ffffff;
+  padding: 6px 8px;
+  margin: -2px -14px 10px -14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  border-radius: 10px 10px 0 0;
+}
+
+.close-btn {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.close-btn:active {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .modal-box input,
 .modal-box select {
   width: 100%;
   margin-bottom: 10px;
-  padding: 6px;
+  padding: 8px;
   font-size: 14px;
-}
-
-/* Заголовок окна модалки в стиле XP */
-
-.modal-title-bar {
-  background: linear-gradient(to right, #245edb, #3a7bd5);
-  color: white;
-  padding: 4px 6px;
-  margin: -2px -14px 10px -14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-}
-
-.close-btn {
-  background: #e1e1e1;
-  border: 2px outset #ffffff;
-  padding: 0 6px;
-  font-size: 12px;
-}
-
-.close-btn:active {
-  border: 2px inset #ffffff;
+  border-radius: 8px;
+  border: 1px solid #d1d1d6;
+  background: #ffffff;
+  box-sizing: border-box;
 }
 
 /* ===== ГРАФИКИ ===== */
@@ -181,28 +201,29 @@ canvas {
   display: block;
   margin: 10px auto;
   background: #ffffff;
-  border: 2px solid #808080;
+  border: 1px solid #d1d1d6;
+  border-radius: 10px;
 }
 
-/* ===== ТАБЫ / РАБОЧАЯ ОБЛАСТЬ ===== */
+/* ===== РАБОЧАЯ ОБЛАСТЬ ===== */
 
 #workspace {
   padding-bottom: 10px;
 }
 
 .tab-content {
-  /* скрываем классом .hidden */
+  /* скрываем через .hidden */
 }
 
-/* ===== НИЖНЯЯ ПАНЕЛЬ (XP LAN) ===== */
+/* ===== НИЖНЯЯ ПАНЕЛЬ (XP + iOS Dock) ===== */
 
 .bottom-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, #245edb, #3a7bd5);
-  border-top: 2px solid #1f3f94;
+  background: linear-gradient(to top, #1f2430, #2c3140);
+  border-top: 1px solid #3a3a3c;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -212,33 +233,37 @@ canvas {
 
 .task-btn {
   flex: 1;
-  margin: 0 2px;
-  background: #e1e1e1;
-  border: 2px outset #ffffff;
+  margin: 0 3px;
+  background: #2c2c2e;
+  border: 1px solid #3a3a3c;
+  border-radius: 9px;
   font-size: 11px;
   padding: 6px 4px;
   white-space: nowrap;
+  color: #f2f2f7;
 }
 
 .task-btn:active {
-  border: 2px inset #ffffff;
+  background: #3a3a3c;
+}
+
+/* активная вкладка (если захочешь подсвечивать из JS, добавь класс .active-tab) */
+.task-btn.active-tab {
+  background: #3478f6;
+  border-color: #4f8dff;
+  color: #ffffff;
 }
 
 .plus-btn {
-  max-width: 60px;
+  max-width: 64px;
   font-size: 20px;
-  font-weight: bold;
-  background: #c6defa;
+  font-weight: 600;
+  background: #3478f6;
+  border-color: #4f8dff;
+  color: #ffffff;
 }
 
-/* ===== ПОДСКАЗКИ ===== */
-
-.hint {
-  font-size: 12px;
-  color: #555;
-}
-
-/* ===== ЦЕЛИ (карточки, mobile-first) ===== */
+/* ===== ЦЕЛИ ===== */
 
 .goals-list {
   margin-top: 8px;
@@ -248,10 +273,12 @@ canvas {
 }
 
 .goal-card {
-  background: #f5f5f5;
-  border: 2px solid #808080;
+  background: #fafafa;
+  border: 1px solid #d1d1d6;
+  border-radius: 10px;
   padding: 8px;
   font-size: 13px;
+  color: #111827;
 }
 
 .goal-header {
@@ -262,7 +289,7 @@ canvas {
 }
 
 .goal-name {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .goal-amounts {
@@ -272,34 +299,31 @@ canvas {
 
 .goal-note {
   font-size: 11px;
-  color: #555;
-  margin-bottom: 4px;
+  color: #6b7280;
+  margin-top: 2px;
 }
 
-/* Прогресс-бар в стиле XP */
-
 .goal-progress {
-  height: 12px;
-  border: 1px solid #808080;
+  height: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d1d6;
   background: #ffffff;
-  box-shadow:
-    inset 1px 1px #ffffff,
-    inset -1px -1px #c0c0c0;
-  margin-bottom: 4px;
+  overflow: hidden;
 }
 
 .goal-progress-inner {
   height: 100%;
-  background: linear-gradient(to right, #6aa84f, #93c47d);
+  background: linear-gradient(to right, #34c759, #a5d6a7);
 }
 
-/* Форма добавления цели */
+/* Форма целей */
 
 .goal-form {
   margin-top: 10px;
   padding: 8px;
-  background: #ece9d8;
-  border: 2px solid #808080;
+  background: #f2f2f7;
+  border: 1px solid #d1d1d6;
+  border-radius: 10px;
   font-size: 13px;
 }
 
@@ -310,7 +334,17 @@ canvas {
 .goal-form input {
   width: 100%;
   margin-bottom: 6px;
-  padding: 6px;
+  padding: 8px;
   font-size: 13px;
   box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #d1d1d6;
+  background: #ffffff;
+}
+
+/* Подсказки */
+
+.hint {
+  font-size: 12px;
+  color: #6b7280;
 }
