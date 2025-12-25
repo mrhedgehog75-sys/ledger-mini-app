@@ -27,6 +27,11 @@ const prevBtn = document.getElementById("prev-month");
 const nextBtn = document.getElementById("next-month");
 const currentDateLabel = document.getElementById("current-date-label");
 
+const operationsList = document.getElementById("operations-list");
+const selectedDayLabel = document.getElementById("selected-day-label");
+
+const reportText = document.getElementById("report-text");
+
 /* === ЭЛЕМЕНТЫ ЦЕЛЕЙ === */
 const goalsList = document.getElementById("goals-list");
 const goalNameInput = document.getElementById("goal-name");
@@ -40,6 +45,13 @@ let currentDate = new Date();
 if (currentDateLabel) {
   currentDateLabel.textContent = new Date().toLocaleDateString("ru-RU");
 }
+
+// выбранный день для таблицы (по умолчанию сегодня)
+let selectedDay = new Date();
+selectedDay.setHours(0, 0, 0, 0);
+
+// период для отчётов и графиков: "week" | "month" | "year"
+let currentPeriod = "month";
 
 /* === ОТКРЫТИЕ / ЗАКРЫТИЕ МОДАЛКИ === */
 
@@ -98,6 +110,7 @@ saveBtn.addEventListener("click", () => {
   updateSummary();
   renderCalendar();
   updateCharts();
+  renderOperationsForSelectedDay();
 });
 
 /* === СУММЫ === */
@@ -128,6 +141,69 @@ function updateSummary() {
   document.getElementById("sum-income").innerText = income.toFixed(0);
   document.getElementById("sum-total").innerText = totalOut.toFixed(0);
   document.getElementById("sum-balance").innerText = balance.toFixed(0);
+}
+
+/* === ТАБЛИЦА ОПЕРАЦИЙ ЗА ВЫБРАННЫЙ ДЕНЬ === */
+
+function renderOperationsForSelectedDay() {
+  if (!operationsList) return;
+
+  const data = JSON.parse(localStorage.getItem("expenses") || "[]");
+  const y = selectedDay.getFullYear();
+  const m = selectedDay.getMonth();
+  const dNum = selectedDay.getDate();
+
+  const dayOps = data.filter((e) => {
+    const d = new Date(e.date);
+    return (
+      d.getFullYear() === y &&
+      d.getMonth() === m &&
+      d.getDate() === dNum
+    );
+  });
+
+  operationsList.innerHTML = "";
+
+  if (selectedDayLabel) {
+    selectedDayLabel.textContent = selectedDay.toLocaleDateString("ru-RU");
+  }
+
+  if (!dayOps.length) {
+    const empty = document.createElement("div");
+    empty.className = "operation-row";
+    empty.textContent = "За этот день пока нет операций";
+    operationsList.appendChild(empty);
+    return;
+  }
+
+  dayOps.forEach((op) => {
+    const row = document.createElement("div");
+    row.className = "operation-row";
+
+    const main = document.createElement("div");
+    main.className = "operation-main";
+
+    const amount = document.createElement("div");
+    amount.className = "operation-amount";
+    const sign = op.flow === "out" ? "-" : "+";
+    amount.textContent = `${sign} ${op.amount}`;
+
+    const meta = document.createElement("div");
+    meta.className = "operation-meta";
+    const typeMap = {
+      daily: "Повседневное",
+      main: "Основное",
+      big: "Крупное",
+    };
+    const typeName = typeMap[op.type] || "Другое";
+    meta.textContent = `${typeName}, ${op.flow === "out" ? "расход" : "доход"}`;
+
+    main.appendChild(amount);
+    main.appendChild(meta);
+
+    row.appendChild(main);
+    operationsList.appendChild(row);
+  });
 }
 
 /* === ЛИМИТ + КАЛЕНДАРЬ === */
@@ -206,6 +282,14 @@ function renderCalendar() {
       div.classList.add(sum <= limit ? "ok" : "bad");
     }
 
+    // клик по дню: выбираем день и показываем таблицу
+    div.addEventListener("click", () => {
+      selectedDay = new Date(year, month, day);
+      selectedDay.setHours(0, 0, 0, 0);
+      renderOperationsForSelectedDay();
+      showTab("tables");
+    });
+
     calendar.appendChild(div);
   }
 }
@@ -241,7 +325,7 @@ function renderGoals() {
   const goals = loadGoals();
   goalsList.innerHTML = "";
 
-  goals.forEach((g, index) => {
+  goals.forEach((g) => {
     const card = document.createElement("div");
     card.className = "goal-card";
 
@@ -285,7 +369,6 @@ function renderGoals() {
     goalsList.appendChild(card);
   });
 
-  // обновляем выпадающий список в модалке
   updateGoalSelect(goals);
 }
 
@@ -296,9 +379,7 @@ if (addGoalBtn) {
     const current = Number(goalCurrentInput.value) || 0;
     const note = (goalNoteInput.value || "").trim();
 
-    if (!name || !target) {
-      return;
-    }
+    if (!name || !target) return;
 
     const goals = loadGoals();
     goals.push({ name, target, current, note });
@@ -327,7 +408,27 @@ window.showTab = function (id) {
   }
 };
 
-/* === ГРАФИКИ (canvas, без библиотек) === */
+/* === ВСПОМОГАТЕЛЬНОЕ ДЛЯ ПЕРИОДОВ === */
+
+function getPeriodFilter(period) {
+  const now = new Date();
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  if (period === "week") {
+    const day = start.getDay(); // 0-6
+    const diff = day === 0 ? 6 : day - 1; // понедельник
+    start.setDate(start.getDate() - diff);
+  } else if (period === "month") {
+    start.setDate(1);
+  } else if (period === "year") {
+    start.setMonth(0, 1);
+  }
+
+  return { start, end: now };
+}
+
+/* === ГРАФИКИ === */
 
 const barCtx = document.getElementById("barChart")?.getContext("2d");
 const lineCtx = document.getElementById("lineChart")?.getContext("2d");
@@ -338,12 +439,15 @@ function drawBarChart() {
   barCtx.clearRect(0, 0, 320, 160);
 
   const data = JSON.parse(localStorage.getItem("expenses") || "[]");
+  const { start, end } = getPeriodFilter(currentPeriod);
+
   let d = 0,
     m = 0,
     b = 0;
 
   data.forEach((e) => {
-    if (e.flow === "out") {
+    const t = new Date(e.date);
+    if (e.flow === "out" && t >= start && t <= end) {
       if (e.type === "daily") d += e.amount;
       if (e.type === "main") m += e.amount;
       if (e.type === "big") b += e.amount;
@@ -352,7 +456,7 @@ function drawBarChart() {
 
   const vals = [d, m, b];
   const max = Math.max(...vals, 1);
-  const colors = ["#6aa84f", "#6fa8dc", "#e06666"];
+  const colors = ["#34c759", "#3478f6", "#ff9f0a"];
 
   vals.forEach((v, i) => {
     const h = (v / max) * 100;
@@ -367,28 +471,52 @@ function drawLineChart() {
   lineCtx.clearRect(0, 0, 320, 160);
 
   const data = JSON.parse(localStorage.getItem("expenses") || "[]");
-  const y = currentDate.getFullYear();
-  const m = currentDate.getMonth();
-  const days = new Date(y, m + 1, 0).getDate();
+  const { start, end } = getPeriodFilter(currentPeriod);
 
-  const sums = Array(days).fill(0);
+  let points = [];
+  if (currentPeriod === "week") {
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      points.push(d);
+    }
+  } else if (currentPeriod === "month") {
+    const days = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      points.push(d);
+    }
+  } else if (currentPeriod === "year") {
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(start.getFullYear(), i, 1);
+      points.push(d);
+    }
+  }
+
+  const sums = Array(points.length).fill(0);
 
   data.forEach((e) => {
-    if (e.flow === "out") {
-      const d = new Date(e.date);
-      if (d.getFullYear() === y && d.getMonth() === m) {
-        sums[d.getDate() - 1] += e.amount;
-      }
+    if (e.flow !== "out") return;
+    const t = new Date(e.date);
+    if (t < start || t > end) return;
+
+    if (currentPeriod === "year") {
+      const idx = t.getMonth();
+      sums[idx] += e.amount;
+    } else {
+      const idx = Math.floor((t - start) / (24 * 60 * 60 * 1000));
+      if (idx >= 0 && idx < sums.length) sums[idx] += e.amount;
     }
   });
 
   const max = Math.max(...sums, 1);
 
-  lineCtx.strokeStyle = "#3c78d8";
+  lineCtx.strokeStyle = "#3478f6";
   lineCtx.beginPath();
 
   sums.forEach((v, i) => {
-    const x = 10 + (i / Math.max(days - 1, 1)) * 280;
+    const x = 10 + (i / Math.max(sums.length - 1, 1)) * 280;
     const yPix = 140 - (v / max) * 100;
     if (i === 0) lineCtx.moveTo(x, yPix);
     else lineCtx.lineTo(x, yPix);
@@ -397,9 +525,91 @@ function drawLineChart() {
   lineCtx.stroke();
 }
 
+/* === ТЕКСТОВЫЙ ОТЧЁТ === */
+
+function updateReport() {
+  if (!reportText) return;
+
+  const data = JSON.parse(localStorage.getItem("expenses") || "[]");
+  const { start, end } = getPeriodFilter(currentPeriod);
+
+  let income = 0;
+  let out = 0;
+  let daily = 0,
+    main = 0,
+    big = 0;
+
+  data.forEach((e) => {
+    const t = new Date(e.date);
+    if (t < start || t > end) return;
+
+    if (e.flow === "in") {
+      income += e.amount;
+    } else if (e.flow === "out") {
+      out += e.amount;
+      if (e.type === "daily") daily += e.amount;
+      if (e.type === "main") main += e.amount;
+      if (e.type === "big") big += e.amount;
+    }
+  });
+
+  const balance = income - out;
+  const periodName =
+    currentPeriod === "week"
+      ? "за неделю"
+      : currentPeriod === "month"
+        ? "за месяц"
+        : "за год";
+
+  let topCat = "повседневные расходы";
+  let topVal = daily;
+  if (main >= topVal) {
+    topCat = "основные обязательства";
+    topVal = main;
+  }
+  if (big >= topVal) {
+    topCat = "крупные траты";
+    topVal = big;
+  }
+
+  const mood =
+    balance > 0
+      ? "Ты живёшь ниже доходов — это очень здорово."
+      : balance > -0.1 * (income || 1)
+        ? "Баланс около нуля — можно чуть поджать расходы."
+        : "Расходы сильно превышают доходы — стоит пересмотреть повседневные траты.";
+
+  reportText.textContent =
+    `Итог ${periodName}: доходы ${income.toFixed(
+      0
+    )}, расходы ${out.toFixed(0)}, баланс ${balance.toFixed(
+      0
+    )}. Больше всего уходит на ${topCat}. ` + mood;
+}
+
+/* === ПЕРЕКЛЮЧАТЕЛЬ ПЕРИОДА === */
+
+document.querySelectorAll(".period-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const period = btn.getAttribute("data-period");
+    if (!period) return;
+    currentPeriod = period;
+
+    document.querySelectorAll(".period-btn").forEach((b) =>
+      b.classList.remove("active-period")
+    );
+    btn.classList.add("active-period");
+
+    updateCharts();
+  });
+});
+
+/* === ОБНОВЛЕНИЕ ГРАФИКОВ + ОТЧЁТ === */
+
 function updateCharts() {
   drawBarChart();
   drawLineChart();
+  updateReport();
 }
 
 /* === СТАРТ === */
@@ -407,6 +617,7 @@ updateSummary();
 renderCalendar();
 updateCharts();
 renderGoals();
+renderOperationsForSelectedDay();
 
 // по умолчанию открываем календарь
 showTab("calendar");

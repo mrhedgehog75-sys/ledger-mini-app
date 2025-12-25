@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <title>Ledger XP</title>
@@ -8,11 +9,12 @@
   <!-- Telegram WebApp JS (для Mini App) -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
   <div id="app">
     <!-- Рабочая область -->
     <div id="workspace">
-      <!-- TAB: Таблицы (доходы/расходы) -->
+      <!-- TAB: Таблицы (доходы/расходы по дню) -->
       <div id="tab-tables" class="tab-content">
         <div class="summary">
           <div>Дата: <span id="current-date-label"></span></div>
@@ -23,7 +25,16 @@
           <div>Расходы всего: <span id="sum-total">0</span></div>
           <div>Баланс: <span id="sum-balance">0</span></div>
         </div>
-        <!-- сюда позже добавим подробную таблицу операций -->
+
+        <div class="operations-box">
+          <div class="operations-header">
+            <span>Операции за день</span>
+            <span id="selected-day-label"></span>
+          </div>
+          <div id="operations-list" class="operations-list">
+            <!-- операции рендерятся из JS -->
+          </div>
+        </div>
       </div>
 
       <!-- TAB: Календарь (стартовый экран) -->
@@ -47,13 +58,13 @@
       <div id="tab-goals" class="tab-content hidden">
         <h3>Цели и накопления</h3>
         <p class="hint">
-          Задай цели: подушка безопасности, инвестиции, долги, крупные покупки.
+          Задай цели: подушка безопасности, инвестиции, крупные покупки, возврат долгов.
         </p>
-        
+
         <div id="goals-list" class="goals-list">
-        <!-- карточки целей будут добавляться сюда из JS -->
+          <!-- карточки целей рендерятся из JS -->
         </div>
-        
+
         <div class="goal-form">
           <h4>Новая цель</h4>
           <input id="goal-name" type="text" placeholder="Название (например, Подушка)" />
@@ -64,8 +75,29 @@
         </div>
       </div>
 
+      <!-- TAB: Графики -->
+      <div id="tab-charts" class="tab-content hidden">
+        <h3>Отчёты и графики</h3>
 
-    <!-- Нижняя панель в стиле XP LAN -->
+        <div class="period-switch">
+          <button class="period-btn" data-period="week">Неделя</button>
+          <button class="period-btn active-period" data-period="month">Месяц</button>
+          <button class="period-btn" data-period="year">Год</button>
+        </div>
+
+        <div id="report-text" class="report-text">
+          Здесь будет краткий отчёт по выбранному периоду.
+        </div>
+
+        <h3>Расходы по типам</h3>
+        <canvas id="barChart" width="320" height="160"></canvas>
+
+        <h3>Расходы по дням</h3>
+        <canvas id="lineChart" width="320" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- Нижняя панель -->
     <div class="bottom-bar">
       <button class="task-btn" onclick="showTab('tables')">
         📋 Таблицы
@@ -108,15 +140,17 @@
         <option value="out">Расход</option>
         <option value="in">Доход</option>
       </select>
+
       <label>Цель (необязательно)</label>
       <select id="goal-select">
         <option value="">Без цели</option>
       </select>
-      
+
       <button id="save-expense">Сохранить</button>
     </div>
   </div>
 
   <script src="app.js"></script>
 </body>
+
 </html>
