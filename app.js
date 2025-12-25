@@ -8,25 +8,58 @@ if (tg) {
   document.body.style.overflow = "hidden";
 }
 
-/* === МОДАЛЬНОЕ ОКНО (+) === */
+/* === ЭЛЕМЕНТЫ === */
 const modal = document.getElementById("expense-modal");
 const amountInput = document.getElementById("amount-input");
 const typeInput = document.getElementById("type-input");
 const flowInput = document.getElementById("flow-input");
 const saveBtn = document.getElementById("save-expense");
+const closeBtn = document.getElementById("close-modal");
+const plusBtn = document.querySelector(".plus-btn");
 
-/* кнопка + */
-document.querySelectorAll(".add-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
+const goalSelect = document.getElementById("goal-select");
+
+const limitInput = document.getElementById("daily-limit");
+const saveLimitBtn = document.getElementById("save-limit");
+const calendar = document.getElementById("calendar");
+const monthTitle = document.getElementById("month-title");
+const prevBtn = document.getElementById("prev-month");
+const nextBtn = document.getElementById("next-month");
+const currentDateLabel = document.getElementById("current-date-label");
+
+/* === ЭЛЕМЕНТЫ ЦЕЛЕЙ === */
+const goalsList = document.getElementById("goals-list");
+const goalNameInput = document.getElementById("goal-name");
+const goalTargetInput = document.getElementById("goal-target");
+const goalCurrentInput = document.getElementById("goal-current");
+const goalNoteInput = document.getElementById("goal-note");
+const addGoalBtn = document.getElementById("add-goal");
+
+/* === ДАТА === */
+let currentDate = new Date();
+if (currentDateLabel) {
+  currentDateLabel.textContent = new Date().toLocaleDateString("ru-RU");
+}
+
+/* === ОТКРЫТИЕ / ЗАКРЫТИЕ МОДАЛКИ === */
+
+// кнопка + в нижней панели
+if (plusBtn) {
+  plusBtn.addEventListener("click", () => {
     modal.classList.remove("hidden");
   });
-});
+}
 
-/* клик по фону — закрыть модалку */
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
+// закрытие по крестику
+if (closeBtn) {
+  closeBtn.addEventListener("click", () => {
     modal.classList.add("hidden");
-  }
+  });
+}
+
+// клик по фону
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) modal.classList.add("hidden");
 });
 
 /* === СОХРАНЕНИЕ ОПЕРАЦИИ === */
@@ -41,11 +74,25 @@ saveBtn.addEventListener("click", () => {
     date: new Date().toISOString(),
   };
 
+  // сохраняем операцию в expenses
   const data = JSON.parse(localStorage.getItem("expenses") || "[]");
   data.push(operation);
   localStorage.setItem("expenses", JSON.stringify(data));
 
+  // если выбрана цель — обновляем её прогресс
+  if (goalSelect && goalSelect.value !== "") {
+    const goalIndex = Number(goalSelect.value);
+    const goals = loadGoals();
+    if (goals[goalIndex]) {
+      goals[goalIndex].current =
+        Number(goals[goalIndex].current || 0) + amount;
+      saveGoals(goals);
+      renderGoals();
+    }
+  }
+
   amountInput.value = "";
+  if (goalSelect) goalSelect.value = "";
   modal.classList.add("hidden");
 
   updateSummary();
@@ -84,9 +131,6 @@ function updateSummary() {
 }
 
 /* === ЛИМИТ + КАЛЕНДАРЬ === */
-const limitInput = document.getElementById("daily-limit");
-const saveLimitBtn = document.getElementById("save-limit");
-const calendar = document.getElementById("calendar");
 
 limitInput.value = localStorage.getItem("dailyLimit") || "";
 
@@ -94,12 +138,6 @@ saveLimitBtn?.addEventListener("click", () => {
   localStorage.setItem("dailyLimit", limitInput.value);
   renderCalendar();
 });
-
-/* === МЕСЯЦЫ === */
-let currentDate = new Date();
-const monthTitle = document.getElementById("month-title");
-const prevBtn = document.getElementById("prev-month");
-const nextBtn = document.getElementById("next-month");
 
 const monthNames = [
   "Январь",
@@ -128,7 +166,6 @@ nextBtn.onclick = () => {
   updateCharts();
 };
 
-/* === КАЛЕНДАРЬ === */
 function renderCalendar() {
   if (!calendar) return;
 
@@ -169,17 +206,115 @@ function renderCalendar() {
       div.classList.add(sum <= limit ? "ok" : "bad");
     }
 
-    // по клику на день можно будет позже показывать список операций
-    div.addEventListener("click", () => {
-      // сюда можно добавить детальный просмотр расходов за день
-      // alert(`Расходы за ${day}.${month + 1}.${year}: ${sum}`);
-    });
-
     calendar.appendChild(div);
   }
 }
 
-/* === ВКЛАДКИ === */
+/* === ЦЕЛИ (localStorage: "goals") === */
+
+function loadGoals() {
+  return JSON.parse(localStorage.getItem("goals") || "[]");
+}
+
+function saveGoals(goals) {
+  localStorage.setItem("goals", JSON.stringify(goals));
+}
+
+function updateGoalSelect(goals) {
+  if (!goalSelect) return;
+  goalSelect.innerHTML = "";
+  const emptyOpt = document.createElement("option");
+  emptyOpt.value = "";
+  emptyOpt.textContent = "Без цели";
+  goalSelect.appendChild(emptyOpt);
+
+  goals.forEach((g, index) => {
+    const opt = document.createElement("option");
+    opt.value = String(index);
+    opt.textContent = g.name || `Цель ${index + 1}`;
+    goalSelect.appendChild(opt);
+  });
+}
+
+function renderGoals() {
+  if (!goalsList) return;
+  const goals = loadGoals();
+  goalsList.innerHTML = "";
+
+  goals.forEach((g, index) => {
+    const card = document.createElement("div");
+    card.className = "goal-card";
+
+    const header = document.createElement("div");
+    header.className = "goal-header";
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "goal-name";
+    nameSpan.textContent = g.name || "Цель";
+
+    const percent =
+      g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
+
+    const percentSpan = document.createElement("span");
+    percentSpan.textContent = percent + "%";
+
+    header.appendChild(nameSpan);
+    header.appendChild(percentSpan);
+
+    const amounts = document.createElement("div");
+    amounts.className = "goal-amounts";
+    amounts.textContent = `Накоплено ${g.current} из ${g.target}`;
+
+    const progress = document.createElement("div");
+    progress.className = "goal-progress";
+
+    const inner = document.createElement("div");
+    inner.className = "goal-progress-inner";
+    inner.style.width = percent + "%";
+    progress.appendChild(inner);
+
+    const note = document.createElement("div");
+    note.className = "goal-note";
+    note.textContent = g.note || "";
+
+    card.appendChild(header);
+    card.appendChild(amounts);
+    card.appendChild(progress);
+    if (g.note) card.appendChild(note);
+
+    goalsList.appendChild(card);
+  });
+
+  // обновляем выпадающий список в модалке
+  updateGoalSelect(goals);
+}
+
+if (addGoalBtn) {
+  addGoalBtn.addEventListener("click", () => {
+    const name = (goalNameInput.value || "").trim();
+    const target = Number(goalTargetInput.value) || 0;
+    const current = Number(goalCurrentInput.value) || 0;
+    const note = (goalNoteInput.value || "").trim();
+
+    if (!name || !target) {
+      return;
+    }
+
+    const goals = loadGoals();
+    goals.push({ name, target, current, note });
+    saveGoals(goals);
+    updateGoalSelect(goals);
+    renderGoals();
+
+    goalNameInput.value = "";
+    goalTargetInput.value = "";
+    goalCurrentInput.value = "";
+    goalNoteInput.value = "";
+  });
+}
+
+/* === ВКЛАДКИ (нижняя панель) === */
+
 window.showTab = function (id) {
   document.querySelectorAll(".tab-content").forEach((t) => {
     t.classList.add("hidden");
@@ -193,6 +328,7 @@ window.showTab = function (id) {
 };
 
 /* === ГРАФИКИ (canvas, без библиотек) === */
+
 const barCtx = document.getElementById("barChart")?.getContext("2d");
 const lineCtx = document.getElementById("lineChart")?.getContext("2d");
 
@@ -221,7 +357,6 @@ function drawBarChart() {
   vals.forEach((v, i) => {
     const h = (v / max) * 100;
     barCtx.fillStyle = colors[i];
-    // x, y, w, h
     barCtx.fillRect(40 + i * 80, 130 - h, 40, h);
   });
 }
@@ -271,5 +406,7 @@ function updateCharts() {
 updateSummary();
 renderCalendar();
 updateCharts();
-// по умолчанию показываем вкладку "Расходы"
-showTab("expenses");
+renderGoals();
+
+// по умолчанию открываем календарь
+showTab("calendar");

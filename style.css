@@ -19,33 +19,21 @@ body {
   margin: 12px;
   padding: 12px;
   max-width: 420px;
-  padding-bottom: 120px;
+  padding-bottom: 70px; /* место под нижнюю панель */
 }
 
-/* ===== КНОПКИ ===== */
+/* ===== КНОПКИ (общие) ===== */
 
 button {
   background: #e1e1e1;
   border: 2px outset #ffffff;
-  padding: 8px;
+  padding: 6px 8px;
   font-size: 14px;
   cursor: pointer;
 }
 
 button:active {
   border: 2px inset #ffffff;
-}
-
-/* Вкладки сверху */
-
-.top-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.top-tabs button {
-  flex: 1;
 }
 
 /* ===== SUMMARY ===== */
@@ -141,11 +129,14 @@ button:active {
 }
 
 .modal-box {
-  background: #ffffff;
-  padding: 14px;
+  background: #ece9d8;
+  padding: 0 14px 14px;
   border: 2px solid #808080;
   width: 90%;
   max-width: 320px;
+  box-shadow:
+    inset 1px 1px #ffffff,
+    inset -1px -1px #404040;
 }
 
 .modal-box h2 {
@@ -160,6 +151,30 @@ button:active {
   font-size: 14px;
 }
 
+/* Заголовок окна модалки в стиле XP */
+
+.modal-title-bar {
+  background: linear-gradient(to right, #245edb, #3a7bd5);
+  color: white;
+  padding: 4px 6px;
+  margin: -2px -14px 10px -14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.close-btn {
+  background: #e1e1e1;
+  border: 2px outset #ffffff;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+.close-btn:active {
+  border: 2px inset #ffffff;
+}
+
 /* ===== ГРАФИКИ ===== */
 
 canvas {
@@ -169,41 +184,133 @@ canvas {
   border: 2px solid #808080;
 }
 
-/* ===== ТАБЫ ===== */
+/* ===== ТАБЫ / РАБОЧАЯ ОБЛАСТЬ ===== */
 
-.tab-content {
-  /* по умолчанию видно, скрываем классом .hidden */
+#workspace {
+  padding-bottom: 10px;
 }
 
-.bottom-tabs {
+.tab-content {
+  /* скрываем классом .hidden */
+}
+
+/* ===== НИЖНЯЯ ПАНЕЛЬ (XP LAN) ===== */
+
+.bottom-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: #ece9d8;
-  border-top: 2px solid #808080;
+  background: linear-gradient(to top, #245edb, #3a7bd5);
+  border-top: 2px solid #1f3f94;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  box-sizing: border-box;
 }
 
-.bottom-tabs button {
+.task-btn {
   flex: 1;
-  border: none;
-  border-right: 1px solid #808080;
+  margin: 0 2px;
   background: #e1e1e1;
-  font-size: 16px;
+  border: 2px outset #ffffff;
+  font-size: 11px;
+  padding: 6px 4px;
+  white-space: nowrap;
 }
 
-/* Кнопка добавления */
+.task-btn:active {
+  border: 2px inset #ffffff;
+}
 
-.add-btn {
-  margin-top: 12px;
-  font-size: 22px;
+.plus-btn {
+  max-width: 60px;
+  font-size: 20px;
   font-weight: bold;
   background: #c6defa;
-  border: 2px outset #ffffff;
-  width: 100%;
 }
 
-.add-btn:active {
-  border: 2px inset #ffffff;
+/* ===== ПОДСКАЗКИ ===== */
+
+.hint {
+  font-size: 12px;
+  color: #555;
+}
+
+/* ===== ЦЕЛИ (карточки, mobile-first) ===== */
+
+.goals-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goal-card {
+  background: #f5f5f5;
+  border: 2px solid #808080;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.goal-name {
+  font-weight: bold;
+}
+
+.goal-amounts {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.goal-note {
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+/* Прогресс-бар в стиле XP */
+
+.goal-progress {
+  height: 12px;
+  border: 1px solid #808080;
+  background: #ffffff;
+  box-shadow:
+    inset 1px 1px #ffffff,
+    inset -1px -1px #c0c0c0;
+  margin-bottom: 4px;
+}
+
+.goal-progress-inner {
+  height: 100%;
+  background: linear-gradient(to right, #6aa84f, #93c47d);
+}
+
+/* Форма добавления цели */
+
+.goal-form {
+  margin-top: 10px;
+  padding: 8px;
+  background: #ece9d8;
+  border: 2px solid #808080;
+  font-size: 13px;
+}
+
+.goal-form h4 {
+  margin-top: 0;
+}
+
+.goal-form input {
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
 }
